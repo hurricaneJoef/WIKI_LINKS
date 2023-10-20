@@ -1,7 +1,7 @@
 from pyvis.network import Network
 
 def show_network(input):
-    nt=Network()
+    nt=Network(directed=True)
     if isinstance(input,dict):
         for k in input.keys():
             nt.add_node(k)

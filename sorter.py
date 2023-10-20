@@ -59,6 +59,89 @@ def bfs_fast(db,starting_point,endpoint,max_depth=6):
             break
     return i, output
 
+def bfs_fast_rev(db,starting_point,endpoint,max_depth=6):
+    pages_to_look_at = set(db.links_to_page[endpoint])
+    if starting_point == endpoint:
+        return 0, {}
+    if starting_point in pages_to_look_at:
+        return 1, {starting_point:{endpoint}}
+    already_visited = set()
+    output = {}
+    for i in range(2,max_depth):
+        next_pages = set()
+        for page in pages_to_look_at:
+            if page not in db.links_to_page.keys():
+                continue
+            if page in already_visited:
+                continue
+            already_visited.add(page)
+            current =  db.links_to_page[page]
+            current = current-already_visited
+            if starting_point in current:
+                _, next_layer = bfs_fast_rev(db,page,endpoint,max_depth=i)
+                if output:
+                    for k,v in next_layer.items():
+                        if k not in output.keys():
+                            output[k] = set()
+                        output[k].update(v)
+                else:
+                    output = next_layer
+                if starting_point not in output.keys():
+                    output[starting_point]=set()
+                output[starting_point].add(page)
+            next_pages.update(current)
+        pages_to_look_at = next_pages
+        if output:
+            break
+    return i, output
+
+def dijkstras(db,starting_point,endpoint,max_depth=6):
+    weights = {}
+    prev = {}
+    if 'https://en.wikipedia.org/wiki/Main_Page' in db.links_from_page.keys():
+        main  = db.links_from_page.pop('https://en.wikipedia.org/wiki/Main_Page')
+        if '/wiki/Main_Page' not in db.links_from_page.keys():
+            db.links_from_page['/wiki/Main_Page'] = []
+        db.links_from_page['/wiki/Main_Page']+= main
+
+    
+    left_to_scan = set(db.links_from_page.keys())
+    for vertex in db.links_to_page.keys():
+        weights[vertex] = 1e10
+    weights[starting_point] = 0
+    
+    while left_to_scan:
+        u = min(left_to_scan, key=lambda x: weights[x])
+        if u == endpoint:
+            output = {}
+            queue = [u]
+            while queue:
+                u = queue.pop(0)
+                if u not in prev.keys():
+                    continue
+                for p in prev[u]:
+                    if p not in output.keys():
+                        output[p] = set()
+                    output[p].add(u)
+                    queue.append(p)
+            return weights[endpoint], output
+        left_to_scan.remove(u)
+        current_dist = weights[u]
+        for neighbor in db.links_from_page[u]:
+            if neighbor not in left_to_scan:
+                continue
+            new_dist = current_dist+ 1# b/c everthing has a weight of 1
+            if weights[neighbor]>new_dist:
+                weights[neighbor]=new_dist
+                prev[neighbor] = set([u])
+            elif weights[neighbor]==new_dist:
+                prev[neighbor].add(u)
+    
+
+
+
+
+
 
 
 test_list = [
@@ -78,7 +161,7 @@ if __name__ == "__main__":
     #print("/wiki/Donald_Trump" in db.links_from_page.keys())
     for s,e in test_list:
         start_time = time.time()
-        dist,path = bfs_fast(db,s,e)
+        dist,path = dijkstras(db,s,e)
         end_time = time.time()
         print("this took ",end_time-start_time)
         print(path)
