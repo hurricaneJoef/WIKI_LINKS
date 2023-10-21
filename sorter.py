@@ -42,7 +42,8 @@ def bfs_fast(db,starting_point,endpoint,max_depth=6):
             current =  db.links_from_page[page]
             current = current-already_visited
             if endpoint in current:
-                _, next_layer = bfs_fast(db,starting_point,page,max_depth=i)
+                length, next_layer = bfs_fast(db,starting_point,page,max_depth=i)
+                length+=1
                 if output:
                     for k,v in next_layer.items():
                         if k not in output.keys():
@@ -57,7 +58,7 @@ def bfs_fast(db,starting_point,endpoint,max_depth=6):
         pages_to_look_at = next_pages
         if output:
             break
-    return i, output
+    return length, output
 
 def bfs_fast_rev(db,starting_point,endpoint,max_depth=6):
     pages_to_look_at = set(db.links_to_page[endpoint])
@@ -67,6 +68,7 @@ def bfs_fast_rev(db,starting_point,endpoint,max_depth=6):
         return 1, {starting_point:{endpoint}}
     already_visited = set()
     output = {}
+    length = 10000
     for i in range(2,max_depth):
         next_pages = set()
         for page in pages_to_look_at:
@@ -78,7 +80,8 @@ def bfs_fast_rev(db,starting_point,endpoint,max_depth=6):
             current =  db.links_to_page[page]
             current = current-already_visited
             if starting_point in current:
-                _, next_layer = bfs_fast_rev(db,page,endpoint,max_depth=i)
+                length, next_layer = bfs_fast_rev(db,page,endpoint,max_depth=i)
+                length+=1
                 if output:
                     for k,v in next_layer.items():
                         if k not in output.keys():
@@ -93,9 +96,9 @@ def bfs_fast_rev(db,starting_point,endpoint,max_depth=6):
         pages_to_look_at = next_pages
         if output:
             break
-    return i, output
+    return length, output
 
-def dijkstras(db,starting_point,endpoint,max_depth=6):
+def dijkstras(db,starting_point,endpoint):
     weights = {}
     prev = {}
     if 'https://en.wikipedia.org/wiki/Main_Page' in db.links_from_page.keys():
@@ -136,7 +139,71 @@ def dijkstras(db,starting_point,endpoint,max_depth=6):
                 prev[neighbor] = set([u])
             elif weights[neighbor]==new_dist:
                 prev[neighbor].add(u)
-    
+
+#non functional atm
+def bfs_double_ended(db,starting_point,endpoint,max_depth=6):
+    #edge case of 0 length
+    if starting_point == endpoint:
+        return 0, {}
+    #seconddary case of 1
+    pages_from_start = set(db.links_from_page[starting_point])
+    pages_to_start = set(db.links_to_page[endpoint])
+    if endpoint in pages_from_start:
+        return 1, {starting_point:{endpoint}}
+    already_visited = set()
+    output = {}
+    for i in range(2,max_depth):
+        next_pages = set()
+        if i%2:
+            for page in pages_from_start:
+                if page not in db.links_from_page.keys():
+                    continue
+                if page in already_visited:
+                    continue
+                already_visited.add(page)
+                current =  db.links_from_page[page]
+                current = current-already_visited
+                if endpoint in current:
+                    _, next_layer = bfs_fast(db,starting_point,page,max_depth=i)
+                    if output:
+                        for k,v in next_layer.items():
+                            if k not in output.keys():
+                                output[k] = set()
+                            output[k].update(v)
+                    else:
+                        output = next_layer
+                    if page not in output.keys():
+                        output[page]=set()
+                    output[page].add(endpoint)
+                next_pages.update(current)
+
+        else:
+            for page in pages_to_start:
+                if page not in db.links_to_page.keys():
+                    continue
+                if page in already_visited:
+                    continue
+                already_visited.add(page)
+                current =  db.links_to_page[page]
+                current = current-already_visited
+                if starting_point in current:
+                    _, next_layer = bfs_fast_rev(db,page,endpoint,max_depth=int((max_depth/2)-i/2))
+                    if output:
+                        for k,v in next_layer.items():
+                            if k not in output.keys():
+                                output[k] = set()
+                            output[k].update(v)
+                    else:
+                        output = next_layer
+                    if starting_point not in output.keys():
+                        output[starting_point]=set()
+                    output[starting_point].add(page)
+                next_pages.update(current)
+
+        pages_to_look_at = next_pages
+        if output:
+            break
+    return i, output
 
 
 
