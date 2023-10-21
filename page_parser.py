@@ -44,6 +44,7 @@ def scrape_data(starting_point):
     not_finished = True
     page = starting_point
     last_save = time.time()
+    leftover_pages = list()
     while not_finished:
         if not page.startswith(WIKI_PREFIX):
             full_page = WIKI_PREFIX+page
@@ -73,10 +74,10 @@ def scrape_data(starting_point):
             print(len(leftover_pages)," pages left to scan before re calculating the pages to scan")
             page = leftover_pages[0]
             continue
-        page = leftover_pages[0]
         pages_i_know_of = set(db.links_to_page.keys())
         pages_ive_been_to = set(db.links_from_page.keys())
         leftover_pages = list(pages_i_know_of - pages_ive_been_to)
+        page = leftover_pages[0]
         print((len(pages_ive_been_to)/len(pages_i_know_of))*100,r"% complete")
         print(len(pages_i_know_of),"total know pages")
         not_finished = len(leftover_pages)>0
