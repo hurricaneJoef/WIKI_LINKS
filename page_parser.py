@@ -1,12 +1,13 @@
+
 from bs4 import BeautifulSoup as bs
 import requests
 from data_storage import dataPickle
 import time
 
-START_URL = r"https://en.wikipedia.org/wiki/Main_Page"
+START_URL = r"/wiki/Olin_College"
 WIKI_PREFIX = "https://en.wikipedia.org"
 MANDITORY_URL_CONTENTS= "/wiki"
-MIN_SAVE_DELAY = 120
+MIN_SAVE_DELAY = 60*10
 
 def add_to_dicts(database,page,links):
     """adds the given link to the 2 dicts in the database (from and to)
@@ -35,6 +36,11 @@ def scrape_data(starting_point):
         starting_point (_type_): _description_
     """
     db = dataPickle()
+    if 'https://en.wikipedia.org/wiki/Main_Page' in db.links_from_page.keys():
+        main  = db.links_from_page.pop('https://en.wikipedia.org/wiki/Main_Page')
+        if '/wiki/Main_Page' not in db.links_from_page.keys():
+            db.links_from_page['/wiki/Main_Page'] = []
+        db.links_from_page['/wiki/Main_Page']+= main
     not_finished = True
     page = starting_point
     last_save = time.time()
@@ -74,7 +80,12 @@ def scrape_data(starting_point):
         print((len(pages_ive_been_to)/len(pages_i_know_of))*100,r"% complete")
         print(len(pages_i_know_of),"total know pages")
         not_finished = len(leftover_pages)>0
-        
+        page = list(leftover_pages)[0]
+        time.sleep(.05)
+        if time.time()-last_save > MIN_SAVE_DELAY:
+            last_save = time.time()
+            db.save()
+            None
 
         
 
