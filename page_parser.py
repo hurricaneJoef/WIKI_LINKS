@@ -60,7 +60,9 @@ def scrape_data(starting_point):
                     and "/Talk:" not in url
                     and "/Help:" not in url
                     and "/Special:" not in url
-                    and "/Wikipedia:" not in url):
+                    and "/Wikipedia:" not in url
+                    and "/Category:" not in url
+                    and "/Template:" not in page):
                 url = url.split('#')[0]
                 links.add(url)
 
@@ -73,11 +75,30 @@ def scrape_data(starting_point):
         if len(leftover_pages)>10:
             print(len(leftover_pages)," pages left to scan before re calculating the pages to scan")
             page = leftover_pages.pop(0)
-            continue
+            bypass = False
+            while ("/Talk:" in page
+                    or "/Help:" in page
+                    or "/Special:" in page
+                    or "/Wikipedia:" in page
+                    or "/Category:" in page
+                    or "/Template:" in page):
+                if not len(leftover_pages):
+                    bypass = True
+                    break
+                page = leftover_pages.pop(0)
+            if not bypass:
+                continue
         pages_i_know_of = set(db.links_to_page.keys())
         pages_ive_been_to = set(db.links_from_page.keys())
         leftover_pages = list(pages_i_know_of - pages_ive_been_to)
         page = leftover_pages.pop(0)
+        while ("/Talk:" in page
+                    or "/Help:" in page
+                    or "/Special:" in page
+                    or "/Wikipedia:" in page
+                    or "/Category:" in page
+                    or "/Template:" in page):
+                page = leftover_pages.pop(0)
         print((len(pages_ive_been_to)/len(pages_i_know_of))*100,r"% complete")
         print(len(pages_i_know_of),"total know pages")
         not_finished = len(leftover_pages)>0
