@@ -58,6 +58,8 @@ def bfs_fast(db,starting_point,endpoint,max_depth=6):
         pages_to_look_at = next_pages
         if output:
             break
+    if len(output)<1:
+        return 1e7,{}
     return length, output
 
 def bfs_fast_rev(db,starting_point,endpoint,max_depth=6):
@@ -96,6 +98,8 @@ def bfs_fast_rev(db,starting_point,endpoint,max_depth=6):
         pages_to_look_at = next_pages
         if output:
             break
+    if len(output)<1:
+        return 1e7,{}
     return length, output
 
 def dijkstras(db,starting_point,endpoint):
