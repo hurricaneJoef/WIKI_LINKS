@@ -37,7 +37,6 @@ def scrape_data(starting_point):
     db = dataPickle()
     not_finished = True
     page = starting_point
-    
     last_save = time.time()
     while not_finished:
         if not page.startswith(WIKI_PREFIX):
@@ -50,21 +49,32 @@ def scrape_data(starting_point):
         links = set(())
         for link in soup.find_all("a"):
             url = link.get("href", "")
-            if url.startswith(MANDITORY_URL_CONTENTS) and "/Talk:" not in url:
+            if (url.startswith(MANDITORY_URL_CONTENTS) 
+                    and "/Talk:" not in url
+                    and "/Help:" not in url
+                    and "/Special:" not in url
+                    and "/Wikipedia:" not in url):
                 url = url.split('#')[0]
                 links.add(url)
+
         add_to_dicts(db,page,links)
-        pages_i_know_of = set(db.links_to_page.keys())
-        pages_ive_been_to = set(db.links_from_page.keys())
-        leftover_pages = pages_i_know_of - pages_ive_been_to
-        print((len(pages_ive_been_to)/len(pages_i_know_of))*100,r"% complete")
-        print(len(pages_i_know_of),"total know pages")
-        not_finished = len(leftover_pages)>0
-        page = list(leftover_pages)[0]
         time.sleep(.05)
         if time.time()-last_save > MIN_SAVE_DELAY:
             last_save = time.time()
             db.save()
+
+        if len(leftover_pages)>10:
+            print(len(leftover_pages)," pages left to scan before re calculating the pages to scan")
+            page = leftover_pages[0]
+            continue
+        page = leftover_pages[0]
+        pages_i_know_of = set(db.links_to_page.keys())
+        pages_ive_been_to = set(db.links_from_page.keys())
+        leftover_pages = list(pages_i_know_of - pages_ive_been_to)
+        print((len(pages_ive_been_to)/len(pages_i_know_of))*100,r"% complete")
+        print(len(pages_i_know_of),"total know pages")
+        not_finished = len(leftover_pages)>0
+        
 
         
 

@@ -25,8 +25,8 @@ def bfs_fwd(db,starting_point,endpoint,max_depth=6):
 
 def bfs_fast(db,starting_point,endpoint,max_depth=6):
     pages_to_look_at = set(db.links_from_page[starting_point])
-    if starting_point == endpoint:
-        return 0, {}
+    #if starting_point == endpoint:
+    #    return 0, {}
     if endpoint in pages_to_look_at:
         return 1, {starting_point:{endpoint}}
     already_visited = set()
@@ -64,8 +64,8 @@ def bfs_fast(db,starting_point,endpoint,max_depth=6):
 
 def bfs_fast_rev(db,starting_point,endpoint,max_depth=6):
     pages_to_look_at = set(db.links_to_page[endpoint])
-    if starting_point == endpoint:
-        return 0, {}
+    #if starting_point == endpoint:
+    #    return 0, {}
     if starting_point in pages_to_look_at:
         return 1, {starting_point:{endpoint}}
     already_visited = set()
@@ -219,7 +219,8 @@ test_list = [
     ("/wiki/Weather_of_2016","/wiki/2016"),
     ("/wiki/Weather_of_2016","/wiki/Donald_Trump"),
     ("/wiki/Weather_of_2016","/wiki/Federal_Election_Commission"),
-    #("/wiki/Kyra_Condie","/wiki/Different_Set")
+    ("/wiki/Olin_College","/wiki/Slime_mold"),
+    ("/wiki/Olin_College","/wiki/Suite_for_Jazz_Orchestra_No._2")
 ]
 
 
@@ -229,10 +230,15 @@ if __name__ == "__main__":
     db = dataPickle()
     end_time = time.time()
     print("db took ",end_time-start_time)
+    print("/wiki/Olin_College" in db.links_from_page.keys())
+    print("/wiki/Pigeonhole_principle" in db.links_from_page.keys())
+    print("/wiki/Don't_Let_the_Pigeon_Drive_the_Bus!" in db.links_from_page.keys())
+
+
     #print("/wiki/Donald_Trump" in db.links_from_page.keys())
     for s,e in test_list:
         start_time = time.time()
-        dist,path = dijkstras(db,s,e)
+        dist,path = bfs_fast_rev(db,s,e)
         end_time = time.time()
         print("this took ",end_time-start_time)
         print(path)
