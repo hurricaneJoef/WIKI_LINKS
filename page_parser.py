@@ -72,12 +72,12 @@ def scrape_data(starting_point):
 
         if len(leftover_pages)>10:
             print(len(leftover_pages)," pages left to scan before re calculating the pages to scan")
-            page = leftover_pages[0]
+            page = leftover_pages.pop(0)
             continue
         pages_i_know_of = set(db.links_to_page.keys())
         pages_ive_been_to = set(db.links_from_page.keys())
         leftover_pages = list(pages_i_know_of - pages_ive_been_to)
-        page = leftover_pages[0]
+        page = leftover_pages.pop(0)
         print((len(pages_ive_been_to)/len(pages_i_know_of))*100,r"% complete")
         print(len(pages_i_know_of),"total know pages")
         not_finished = len(leftover_pages)>0
