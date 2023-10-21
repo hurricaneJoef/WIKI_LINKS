@@ -1,3 +1,4 @@
+
 from bs4 import BeautifulSoup as bs
 import requests
 from data_storage import dataPickle
