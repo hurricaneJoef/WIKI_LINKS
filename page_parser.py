@@ -62,7 +62,8 @@ def scrape_data(starting_point):
                     and "/Special:" not in url
                     and "/Wikipedia:" not in url
                     and "/Category:" not in url
-                    and "/Template:" not in page):
+                    and "/Template:" not in url
+                    and "/Template_talk:" not in url):
                 url = url.split('#')[0]
                 links.add(url)
 
@@ -81,7 +82,8 @@ def scrape_data(starting_point):
                     or "/Special:" in page
                     or "/Wikipedia:" in page
                     or "/Category:" in page
-                    or "/Template:" in page):
+                    or "/Template:" in page
+                    or "/Template_talk:" in page):
                 if not len(leftover_pages):
                     bypass = True
                     break
@@ -97,7 +99,8 @@ def scrape_data(starting_point):
                     or "/Special:" in page
                     or "/Wikipedia:" in page
                     or "/Category:" in page
-                    or "/Template:" in page):
+                    or "/Template:" in page
+                    or "/Template_talk:" in page):
                 page = leftover_pages.pop(0)
         print((len(pages_ive_been_to)/len(pages_i_know_of))*100,r"% complete")
         print(len(pages_i_know_of),"total know pages")
