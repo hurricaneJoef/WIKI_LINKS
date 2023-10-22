@@ -217,11 +217,13 @@ def bfs_double_ended(db,starting_point,endpoint,max_depth=6):
 
 
 test_list = [
-    ("/wiki/Weather_of_2016","/wiki/2016"),
-    ("/wiki/Weather_of_2016","/wiki/Donald_Trump"),
-    ("/wiki/Weather_of_2016","/wiki/Federal_Election_Commission"),
-    ("/wiki/Olin_College","/wiki/Slime_mold"),
-    ("/wiki/Olin_College","/wiki/Suite_for_Jazz_Orchestra_No._2")
+    #("/wiki/Weather_of_2016","/wiki/2016"),
+    #("/wiki/Downcycling","/wiki/Ron_Atkinson"),
+    #("/wiki/Recycling","/wiki/Federal_Election_Commission"),
+    #("/wiki/Chalk","/wiki/Binary_opposition"),
+    #("/wiki/Chalk","/wiki/Quarry"),
+    #("/wiki/Ecological_extinction","/wiki/Economic_efficiency"),
+    #("/wiki/Ecological_extinction","/wiki/Federal_Election_Commission"),
 ]
 
 
@@ -231,9 +233,9 @@ if __name__ == "__main__":
     db = dataPickle()
     end_time = time.time()
     print("db took ",end_time-start_time)
-    print("/wiki/Olin_College" in db.links_from_page.keys())
-    print("/wiki/Pigeonhole_principle" in db.links_from_page.keys())
-    print("/wiki/Don't_Let_the_Pigeon_Drive_the_Bus!" in db.links_from_page.keys())
+    print("/wiki/Philosophy" in db.links_from_page.keys())
+    print("/wiki/Wreck_of_the_Old_97" in db.links_from_page.keys())
+    print("/wiki/Vietnam_War" in db.links_from_page.keys())
 
 
     #print("/wiki/Donald_Trump" in db.links_from_page.keys())
@@ -245,4 +247,22 @@ if __name__ == "__main__":
         print(path)
         show_network(path)
         None
+    import random
+    while True:
+        s = random.choice(list(db.links_from_page.keys()))
+        e = random.choice(list(db.links_to_page.keys()))
+        filename = s.split("/wiki/",1)[1]+"_route_to_"+e.split("/wiki/",1)[1]+".html"
+        if '/' in filename or ':' in filename or '.' in s or '.' in e:
+            continue
+        print(filename)
+        start_time = time.time()
+        dist,path = bfs_fast_rev(db,s,e)
+        end_time = time.time()
+        print("this took ",end_time-start_time)
+        print(path)
+        if len(path)<1:
+            continue
+        show_network(path,"/maps/"+filename)
+        None
+
     None
