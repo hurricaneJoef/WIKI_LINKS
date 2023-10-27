@@ -8,6 +8,7 @@ START_URL = r"/wiki/Olin_College"
 WIKI_PREFIX = "https://en.wikipedia.org"
 MANDITORY_URL_CONTENTS= "/wiki"
 MIN_SAVE_DELAY = 60*3
+NOGO_LINK_LIST = ["/Talk:","/Help:","/Special:","/Wikipedia:" ,"/Category:" ,"/Template:","/Template_talk:"]
 
 def add_to_dicts(database,page,links):
     """adds the given link to the 2 dicts in the database (from and to)
@@ -28,6 +29,15 @@ def add_to_dicts(database,page,links):
     else:
         database.links_from_page[page].update(links)
     pass
+
+def page_safe(url):
+    if not url.startswith(MANDITORY_URL_CONTENTS):
+        return False
+    for bad in NOGO_LINK_LIST:
+        if bad in url:
+            return False
+    return True
+    
 
 def scrape_data(starting_point):
     """_summary_
@@ -56,35 +66,24 @@ def scrape_data(starting_point):
         links = set(())
         for link in soup.find_all("a"):
             url = link.get("href", "")
-            if (url.startswith(MANDITORY_URL_CONTENTS) 
-                    and "/Talk:" not in url
-                    and "/Help:" not in url
-                    and "/Special:" not in url
-                    and "/Wikipedia:" not in url
-                    and "/Category:" not in url
-                    and "/Template:" not in url
-                    and "/Template_talk:" not in url):
+            if page_safe(url):
                 url = url.split('#')[0]
                 links.add(url)
 
         add_to_dicts(db,page,links)
         time.sleep(.05)
         if time.time()-last_save > MIN_SAVE_DELAY:
+            print("saving started")
             last_save = time.time()
             db.save()
             None
+            print("saving complete")
 
         if len(leftover_pages)>10:
             print(len(leftover_pages)," pages left to scan before re calculating the pages to scan")
             page = leftover_pages.pop(0)
             bypass = False
-            while ("/Talk:" in page
-                    or "/Help:" in page
-                    or "/Special:" in page
-                    or "/Wikipedia:" in page
-                    or "/Category:" in page
-                    or "/Template:" in page
-                    or "/Template_talk:" in page):
+            while not page_safe(page)):
                 if not len(leftover_pages):
                     bypass = True
                     break
@@ -95,13 +94,7 @@ def scrape_data(starting_point):
         pages_ive_been_to = set(db.links_from_page.keys())
         leftover_pages = list(pages_i_know_of - pages_ive_been_to)
         page = leftover_pages.pop(0)
-        while ("/Talk:" in page
-                    or "/Help:" in page
-                    or "/Special:" in page
-                    or "/Wikipedia:" in page
-                    or "/Category:" in page
-                    or "/Template:" in page
-                    or "/Template_talk:" in page):
+        while (not page_safe(page)):
                 page = leftover_pages.pop(0)
         print((len(pages_ive_been_to)/len(pages_i_know_of))*100,r"% complete")
         print(len(pages_i_know_of),"total know pages")
