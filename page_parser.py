@@ -83,7 +83,7 @@ def scrape_data(starting_point):
             print(len(leftover_pages)," pages left to scan before re calculating the pages to scan")
             page = leftover_pages.pop(0)
             bypass = False
-            while not page_safe(page)):
+            while not page_safe(page):
                 if not len(leftover_pages):
                     bypass = True
                     break
