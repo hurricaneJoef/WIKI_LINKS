@@ -7,7 +7,7 @@ import time
 START_URL = r"/wiki/Olin_College"
 WIKI_PREFIX = "https://en.wikipedia.org"
 MANDITORY_URL_CONTENTS= "/wiki"
-MIN_SAVE_DELAY = 60*10
+MIN_SAVE_DELAY = 60*3
 
 def add_to_dicts(database,page,links):
     """adds the given link to the 2 dicts in the database (from and to)
@@ -72,6 +72,7 @@ def scrape_data(starting_point):
         if time.time()-last_save > MIN_SAVE_DELAY:
             last_save = time.time()
             db.save()
+            None
 
         if len(leftover_pages)>10:
             print(len(leftover_pages)," pages left to scan before re calculating the pages to scan")
@@ -106,11 +107,13 @@ def scrape_data(starting_point):
         print(len(pages_i_know_of),"total know pages")
         not_finished = len(leftover_pages)>0
         page = list(leftover_pages)[0]
-        time.sleep(.05)
+        time.sleep(.01)
         if time.time()-last_save > MIN_SAVE_DELAY:
+            print("saving started")
             last_save = time.time()
             db.save()
             None
+            print("saving complete")
 
         
 
